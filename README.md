@@ -8,7 +8,7 @@ The templates are based on the AWS reference architecture, see https://github.co
 
 ## Process
 
-![process-overview](images/process-overview.png =465x406)
+![process-overview](images/process-overview.png)
 
 Images of scanned or photographed text can be uploaded in the web application. 
 The files are transfered to a S3 bucket, which has a bucket notification configured that send as message to a SQS queue.
