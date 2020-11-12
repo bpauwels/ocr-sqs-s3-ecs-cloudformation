@@ -2,13 +2,13 @@
 
 ## Overview
 
-This repository contains CloudFormation templates to delploy a example OCR service on AWS using ECS, SQS and S3
+This repository contains CloudFormation templates to delploy an example OCR service on AWS using ECS, SQS and S3
 
 The templates are based on the AWS reference architecture, see https://github.com/aws-samples/ecs-refarch-cloudformation
 
 ## Process
 
-![process-overview](images/process-overview.png)
+![process-overview](images/process-overview.png =465x406)
 
 Images of scanned or photographed text can be uploaded in the web application. 
 The files are transfered to a S3 bucket, which has a bucket notification configured that send as message to a SQS queue.
