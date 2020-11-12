@@ -1,4 +1,4 @@
-# CloudFormation Templates for a example OCR service with Amazon ECS, SQS, and S3
+# CloudFormation Templates for an example OCR service with Amazon ECS, SQS, and S3
 
 ## Overview
 
