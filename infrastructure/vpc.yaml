@@ -223,3 +223,11 @@ Outputs:
   PrivateSubnet2:
     Description: A reference to the private subnet in the 2nd Availability Zone
     Value: !Ref PrivateSubnet2
+
+  PrivateRouteTable1:
+    Description: A reference to the private subnet's route table in the 1st Availability Zone
+    Value: !Ref PrivateRouteTable1
+
+  PrivateRouteTable2:
+    Description: A reference to the private subnet's route table in the 2nd Availability Zone
+    Value: !Ref PrivateRouteTable2

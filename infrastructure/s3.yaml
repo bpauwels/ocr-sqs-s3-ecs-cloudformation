@@ -1,0 +1,52 @@
+Description: >
+  This template deploys the S3 input and output bucket and VPC endpoints for both
+
+Parameters:
+  VPC:
+    Description: Choose which VPC the SQS VPC endpoints should be deployed to
+    Type: AWS::EC2::VPC::Id
+
+  PrivateRouteTable1:
+    Description: Route Table ID of the 1st private subnet's route table
+    Type: String
+
+  PrivateRouteTable2:
+    Description: Route Table ID of the 2nd private subnet's route table
+    Type: String
+
+  QueueARN:
+    Description: ARN of the SQS queue where the ObjectCreated events should be pushed to
+    Type: String
+
+Resources:
+
+  EndpointS3:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      RouteTableIds:
+      - !Ref PrivateRouteTable1
+      - !Ref PrivateRouteTable2
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcId: !Ref VPC
+
+  InputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      NotificationConfiguration:
+        QueueConfigurations:
+          Event: s3:ObjectCreated:Put
+          Queue: !Ref QueueARN
+
+  OutputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+
+Outputs:
+  InputBucket:
+    Description: S3 Input Bucket
+    Value: !Ref InputBucket
+  OutputBucket:
+    Description: S3 Output Bucket
+    Value: !Ref OutputBucket

@@ -1,0 +1,42 @@
+Description: >
+  This template deploys the SQS to queue the OCR jobs
+
+Parameters:
+  VPC:
+    Description: Choose which VPC the SQS VPC endpoints should be deployed to
+    Type: AWS::EC2::VPC::Id
+
+  PrivateSubnet1:
+    Description: 1st private subnet
+    Type: String
+
+  PrivateSubnet2:
+    Description: 2nd private subnet
+    Type: String
+
+Resources:
+
+  EndpointSQS:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds:
+      - !Ref PrivateSubnet1
+      - !Ref PrivateSubnet2
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.sqs'
+      VpcId: !Ref VPC
+      VpcEndpointType: Interface
+
+  OCRQueue: 
+    Type: AWS::SQS::Queue
+
+Outputs:
+  QueueURL: 
+    Description: "URL of new Amazon SQS Queue"
+    Value: 
+      Ref: "OCRQueue"
+  QueueARN: 
+    Description: "ARN of new Amazon SQS Queue"
+    Value: 
+      Fn::GetAtt: 
+        - "OCRQueue"
+        - "Arn"

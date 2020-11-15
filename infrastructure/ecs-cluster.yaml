@@ -132,6 +132,8 @@ Resources:
   # You can add other IAM policy statements here to allow access from your ECS hosts
   # to other AWS services. Please note that this role will be used by ALL containers
   # running on the ECS host.
+  #
+  # Also added SQS permissions
 
   ECSRole:
     Type: AWS::IAM::Role
@@ -168,7 +170,9 @@ Resources:
                         "ecr:BatchCheckLayerAvailability",
                         "ecr:BatchGetImage",
                         "ecr:GetDownloadUrlForLayer",
-                        "ecr:GetAuthorizationToken"
+                        "ecr:GetAuthorizationToken",
+                        "sqs:SendMessage",
+                        "sqs:ReceiveMessage"
                     ],
                     "Resource": "*"
                 }]

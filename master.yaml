@@ -1,24 +1,15 @@
 Description: >
 
-  This template deploys a VPC, with a pair of public and private subnets spread 
-  across two Availabilty Zones. It deploys an Internet Gateway, with a default 
-  route on the public subnets. It deploys a pair of NAT Gateways (one in each AZ), 
-  and default routes for them in the private subnets.
+  Delploy an example OCR service on AWS using ECS, SQS and S3
 
-  It then deploys a highly available ECS cluster using an AutoScaling Group, with 
-  ECS hosts distributed across multiple Availability Zones. 
-
-  Finally, it deploys a pair of example ECS services from containers published in 
-  Amazon EC2 Container Registry (Amazon ECR).
-
-  Last Modified: 22nd September 2016
-  Author: Paul Maddox <pmaddox@amazon.com>
+  Last Modified: 15th November 2020
+  Author: Benedikt Pauwels - https://github.com/bpauwels
 
 Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/infrastructure/vpc.yaml
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/vpc.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
         VpcCIDR: 10.180.0.0/16
@@ -30,15 +21,34 @@ Resources:
   SecurityGroups:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/infrastructure/security-groups.yaml
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/security-groups.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
         VPC: !GetAtt VPC.Outputs.VPC
 
+  SQSQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/sqs.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPC
+        PrivateSubnet1: !GetAtt VPC.Outputs.PrivateSubnet1
+        PrivateSubnet2: !GetAtt VPC.Outputs.PrivateSubnet2
+
+  S3Buckets:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/s3.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPC
+        PrivateRouteTable1: !GetAtt VPC.Outputs.PrivateRouteTable1
+        PrivateRouteTable2: !GetAtt VPC.Outputs.PrivateRouteTable2
+        QueueArn: !GetAtt SQSQueue.Outputs.QueueARN
+
   ALB:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/infrastructure/load-balancers.yaml
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/load-balancers.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
         VPC: !GetAtt VPC.Outputs.VPC
@@ -48,7 +58,7 @@ Resources:
   ECS:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/infrastructure/ecs-cluster.yaml
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/ecs-cluster.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
         InstanceType: t2.micro
@@ -60,19 +70,36 @@ Resources:
   WebAppService:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/services/webapp-service/service.yaml
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/services/webapp-service/service.yaml
       Parameters:
         VPC: !GetAtt VPC.Outputs.VPC
         Cluster: !GetAtt ECS.Outputs.Cluster
         DesiredCount: 2
         Listener: !GetAtt ALB.Outputs.Listener
-        Path: /
+        Path: /*
         ECSServiceAutoScalingRoleARN: !GetAtt ECS.Outputs.ECSServiceAutoScalingRole
+        S3InputBucket: !GetAtt S3Buckets.Outputs.InputBucket
+        S3OutputBucket: !GetAtt S3Buckets.Outputs.OutputBucket
+
+  OCRWorkerService:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/services/ocr-worker-service/service.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPC
+        Cluster: !GetAtt ECS.Outputs.Cluster
+        DesiredCount: 2
+        Listener: !GetAtt ALB.Outputs.Listener
+        Path: /*
+        ECSServiceAutoScalingRoleARN: !GetAtt ECS.Outputs.ECSServiceAutoScalingRole
+        S3InputBucket: !GetAtt S3Buckets.Outputs.InputBucket
+        S3OutputBucket: !GetAtt S3Buckets.Outputs.OutputBucket
+        SQSQueue: !GetAtt SQSQueue.Outputs.QueueURL
 
   LifecycleHook:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/infrastructure/lifecyclehook.yaml
+      TemplateURL: https://cf-templates-3p01u4zluhc6-eu-west-1.s3-eu-west-1.amazonaws.com/infrastructure/lifecyclehook.yaml
       Parameters:
         Cluster: !GetAtt ECS.Outputs.Cluster
         ECSAutoScalingGroupName: !GetAtt ECS.Outputs.ECSAutoScalingGroupName
