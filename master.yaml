@@ -51,7 +51,7 @@ Resources:
       TemplateURL: https://raw.githubusercontent.com/bpauwels/ocr-sqs-s3-ecs-cloudformation/main/infrastructure/ecs-cluster.yaml
       Parameters:
         EnvironmentName: !Ref AWS::StackName
-        InstanceType: t2.large
+        InstanceType: t2.micro
         ClusterSize: 4
         VPC: !GetAtt VPC.Outputs.VPC
         SecurityGroup: !GetAtt SecurityGroups.Outputs.ECSHostSecurityGroup
