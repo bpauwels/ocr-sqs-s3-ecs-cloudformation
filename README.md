@@ -31,7 +31,7 @@ The repository consists of a set of nested templates that deploy the following:
  - Centralized container logging with [Amazon CloudWatch Logs](http://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html).
  - A [Lambda Function](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) and [Auto Scaling Lifecycle Hook](https://docs.aws.amazon.com/autoscaling/ec2/userguide/lifecycle-hooks.html) to [drain Tasks from your Container Instances](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-draining.html) when an Instance is selected for Termination in your Auto Scaling Group.
  - A [demo web application](https://github.com/bpauwels/aws-ocr-s3-frontend) running as ECS service, registered with the ALB
- - A [demo OCR worker application](https://github.com/bpauwels/docker-sqs-ocr) running as ECS service
+ - A [demo OCR worker application](https://github.com/bpauwels/nodejs-sqs-ocr) running as ECS service
 
 Both, the web app and OCR workers scaled in and out based on the CPU utilization. This could be improved by scaling the OCR workers based on the SQS queue depth using a CloudWatch alarm.
 
@@ -50,7 +50,7 @@ The templates below are included in this repository and reference architecture:
 | [infrastructure/ecs-cluster.yaml](infrastructure/ecs-cluster.yaml) | This template deploys an ECS cluster to the private subnets using an Auto Scaling group and installs the AWS SSM agent with related policy requirements. |
 | [infrastructure/lifecyclehook.yaml](infrastructure/lifecyclehook.yaml) | This template deploys a Lambda Function and Auto Scaling Lifecycle Hook to drain Tasks from your Container Instances when an Instance is selected for Termination in your Auto Scaling Group.
 | [services/webapp-service/service.yaml](services/webapp-service/service.yaml) | This is the example web application, see [aws-ocr-s3-frontend](https://github.com/bpauwels/aws-ocr-s3-frontend) |
-| [services/ocr-worker-service/service.yaml](services/ocr-worker-service/service.yaml) | This is the example ocr worker service, see [docker-sqs-ocr](https://github.com/bpauwels/docker-sqs-ocr) |
+| [services/ocr-worker-service/service.yaml](services/ocr-worker-service/service.yaml) | This is the example ocr worker service, see [nodejs-sqs-ocr](https://github.com/bpauwels/nodejs-sqs-ocr) |
 
 ### Network
 
