@@ -14,7 +14,7 @@ Images of scanned or photographed text can be uploaded in the web application.
 The files are transfered to a S3 bucket, which has a bucket notification configured that send as message to a SQS queue.
 OCR worker containers poll the queue, recognize text and store the results in another S3 bucket.
 
-## Infrastructure (work in progress)
+## Infrastructure
 
 ![infrastructure-overview](images/architecture.png)
 
@@ -35,7 +35,7 @@ The repository consists of a set of nested templates that deploy the following:
 
 Both, the web app and OCR workers scaled in and out based on the CPU utilization. This could be improved by scaling the OCR workers based on the SQS queue depth using a CloudWatch alarm.
 
-## Template details (work in progress)
+## Template details
 
 The templates below are included in this repository and reference architecture:
 
@@ -44,6 +44,8 @@ The templates below are included in this repository and reference architecture:
 | [master.yaml](master.yaml) | This is the master template - deploy it to CloudFormation and it includes all of the others automatically. |
 | [infrastructure/vpc.yaml](infrastructure/vpc.yaml) | This template deploys a VPC with a pair of public and private subnets spread across two Availability Zones. It deploys an [Internet gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Internet_Gateway.html), with a default route on the public subnets. It deploys a pair of NAT gateways (one in each zone), and default routes for them in the private subnets. |
 | [infrastructure/security-groups.yaml](infrastructure/security-groups.yaml) | This template contains the [security groups](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_SecurityGroups.html) required by the entire stack. They are created in a separate nested template, so that they can be referenced by all of the other nested templates. |
+| [infrastructure/sqs.yaml](infrastructure/sqs.yaml) | This template contains the SQS queue used to store the events for newly uploaded images that should be processed. It also contains the VPC endpoint for SQS |
+| [infrastructure/s3.yaml](infrastructure/s3.yaml) | This template contains the S3 buckets used to store input and output files. It also contains the VPC endpoint for S3 |
 | [infrastructure/load-balancers.yaml](infrastructure/load-balancers.yaml) | This template deploys an ALB to the public subnets, which exposes the various ECS services. It is created in in a separate nested template, so that it can be referenced by all of the other nested templates and so that the various ECS services can register with it. |
 | [infrastructure/ecs-cluster.yaml](infrastructure/ecs-cluster.yaml) | This template deploys an ECS cluster to the private subnets using an Auto Scaling group and installs the AWS SSM agent with related policy requirements. |
 | [infrastructure/lifecyclehook.yaml](infrastructure/lifecyclehook.yaml) | This template deploys a Lambda Function and Auto Scaling Lifecycle Hook to drain Tasks from your Container Instances when an Instance is selected for Termination in your Auto Scaling Group.
