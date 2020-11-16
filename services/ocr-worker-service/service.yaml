@@ -129,8 +129,8 @@ Resources:
         - Name: ServiceName
           Value: !GetAtt Service.Name
       Statistic: Maximum
-      Period: "30"
-      EvaluationPeriods: "3"
+      Period: "60"
+      EvaluationPeriods: "1"
       Threshold: "90"
       ComparisonOperator: GreaterThanThreshold
       AlarmActions:
@@ -149,8 +149,8 @@ Resources:
         - Name: ServiceName
           Value: !GetAtt Service.Name
       Statistic: Maximum
-      Period: "30"
-      EvaluationPeriods: "10"
+      Period: "60"
+      EvaluationPeriods: "3"
       Threshold: "70"
       ComparisonOperator: LessThanThreshold
       AlarmActions:

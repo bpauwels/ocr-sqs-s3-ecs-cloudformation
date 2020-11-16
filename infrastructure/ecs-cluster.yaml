@@ -172,7 +172,8 @@ Resources:
                         "ecr:GetDownloadUrlForLayer",
                         "ecr:GetAuthorizationToken",
                         "sqs:SendMessage",
-                        "sqs:ReceiveMessage"
+                        "sqs:ReceiveMessage",
+                        "sqs:DeleteMessage"
                     ],
                     "Resource": "*"
                 }]

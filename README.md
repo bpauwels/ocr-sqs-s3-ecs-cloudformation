@@ -16,11 +16,13 @@ OCR worker containers poll the queue, recognize text and store the results in an
 
 ## Infrastructure (work in progress)
 
-![infrastructure-overview](images/architecture-overview.png)
+![infrastructure-overview](images/architecture.png)
 
 The repository consists of a set of nested templates that deploy the following:
 
  - A tiered [VPC](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Introduction.html) with public and private subnets, spanning an AWS region.
+ - Two [S3](https://aws.amazon.com/s3/) buckets for input and output files, connected via a VPC Endpoint
+ - A [SQS](https://aws.amazon.com/sqs/) fully managed message queue, receiving messages from the S3 input bucket when files are uploaded, connected via a VPC Endpoint
  - A highly available ECS cluster deployed across two [Availability Zones](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) in an [Auto Scaling](https://aws.amazon.com/autoscaling/) group and that are AWS SSM enabled.
  - A pair of [NAT gateways](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-nat-gateway.html) (one in each zone) to handle outbound traffic.
  - Two interconnecting microservices deployed as [ECS services](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html) (website-service and product-service). 
@@ -28,7 +30,10 @@ The repository consists of a set of nested templates that deploy the following:
  - ALB path-based routes for each ECS service to route the inbound traffic to the correct service.
  - Centralized container logging with [Amazon CloudWatch Logs](http://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html).
  - A [Lambda Function](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) and [Auto Scaling Lifecycle Hook](https://docs.aws.amazon.com/autoscaling/ec2/userguide/lifecycle-hooks.html) to [drain Tasks from your Container Instances](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-draining.html) when an Instance is selected for Termination in your Auto Scaling Group.
+ - A [demo web application](https://github.com/bpauwels/aws-ocr-s3-frontend) running as ECS service, registered with the ALB
+ - A [demo OCR worker application](https://github.com/bpauwels/docker-sqs-ocr) running as ECS service
 
+Both, the web app and OCR workers scaled in and out based on the CPU utilization. This could be improved by scaling the OCR workers based on the SQS queue depth using a CloudWatch alarm.
 
 ## Template details (work in progress)
 
@@ -42,8 +47,8 @@ The templates below are included in this repository and reference architecture:
 | [infrastructure/load-balancers.yaml](infrastructure/load-balancers.yaml) | This template deploys an ALB to the public subnets, which exposes the various ECS services. It is created in in a separate nested template, so that it can be referenced by all of the other nested templates and so that the various ECS services can register with it. |
 | [infrastructure/ecs-cluster.yaml](infrastructure/ecs-cluster.yaml) | This template deploys an ECS cluster to the private subnets using an Auto Scaling group and installs the AWS SSM agent with related policy requirements. |
 | [infrastructure/lifecyclehook.yaml](infrastructure/lifecyclehook.yaml) | This template deploys a Lambda Function and Auto Scaling Lifecycle Hook to drain Tasks from your Container Instances when an Instance is selected for Termination in your Auto Scaling Group.
-| [services/product-service/service.yaml](services/product-service/service.yaml) | This is an example of a long-running ECS service that serves a JSON API of products. For the full source for the service, see [services/product-service/src](services/product-service/src).|
-| [services/website-service/service.yaml](services/website-service/service.yaml) | This is an example of a long-running ECS service that needs to connect to another service (product-service) via the load-balanced URL. We use an environment variable to pass the product-service URL to the containers. For the full source for this service, see [services/website-service/src](services/website-service/src). |
+| [services/webapp-service/service.yaml](services/webapp-service/service.yaml) | This is the example web application, see [aws-ocr-s3-frontend](https://github.com/bpauwels/aws-ocr-s3-frontend) |
+| [services/ocr-worker-service/service.yaml](services/ocr-worker-service/service.yaml) | This is the example ocr worker service, see [docker-sqs-ocr](https://github.com/bpauwels/docker-sqs-ocr) |
 
 ### Network
 

@@ -29,6 +29,26 @@ Resources:
   OCRQueue: 
     Type: AWS::SQS::Queue
 
+  SQSPolicy: 
+    Type: AWS::SQS::QueuePolicy
+    Properties: 
+      Queues: 
+        - !Ref OCRQueue
+      PolicyDocument: 
+        Statement: 
+          - 
+            Action: 
+              - "sqs:SendMessage" 
+            Effect: "Allow"
+            Resource:
+              Fn::GetAtt: 
+                - "OCRQueue"
+                - "Arn"
+            Condition:
+              ArnLike:
+                aws:SourceArn: "arn:aws:s3:::*"
+            Principal: "*"
+
 Outputs:
   QueueURL: 
     Description: "URL of new Amazon SQS Queue"

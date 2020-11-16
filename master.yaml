@@ -43,7 +43,7 @@ Resources:
         VPC: !GetAtt VPC.Outputs.VPC
         PrivateRouteTable1: !GetAtt VPC.Outputs.PrivateRouteTable1
         PrivateRouteTable2: !GetAtt VPC.Outputs.PrivateRouteTable2
-        QueueArn: !GetAtt SQSQueue.Outputs.QueueARN
+        QueueARN: !GetAtt SQSQueue.Outputs.QueueARN
 
   ALB:
     Type: AWS::CloudFormation::Stack
@@ -89,8 +89,6 @@ Resources:
         VPC: !GetAtt VPC.Outputs.VPC
         Cluster: !GetAtt ECS.Outputs.Cluster
         DesiredCount: 2
-        Listener: !GetAtt ALB.Outputs.Listener
-        Path: /*
         ECSServiceAutoScalingRoleARN: !GetAtt ECS.Outputs.ECSServiceAutoScalingRole
         S3InputBucket: !GetAtt S3Buckets.Outputs.InputBucket
         S3OutputBucket: !GetAtt S3Buckets.Outputs.OutputBucket

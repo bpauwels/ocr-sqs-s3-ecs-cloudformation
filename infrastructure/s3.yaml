@@ -35,8 +35,8 @@ Resources:
       AccessControl: Private
       NotificationConfiguration:
         QueueConfigurations:
-          Event: s3:ObjectCreated:Put
-          Queue: !Ref QueueARN
+          - Event: s3:ObjectCreated:*
+            Queue: !Ref QueueARN
 
   OutputBucket:
     Type: AWS::S3::Bucket
