@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains CloudFormation templates to delploy an example OCR service on AWS using ECS, SQS and S3
+This repository contains CloudFormation templates to deploy an example OCR service on AWS using ECS, SQS and S3
 
 The templates are based on the AWS reference architecture, see https://github.com/aws-samples/ecs-refarch-cloudformation
 
